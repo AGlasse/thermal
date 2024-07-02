@@ -9,7 +9,7 @@ class Filer:
 
     @staticmethod
     def load_data(file_name):
-        path = '../materials/' + file_name
+        path = './materials/' + file_name
         print('Loading ' + path)
         data, group = {}, {}
         with open(path, 'r') as text_file:
