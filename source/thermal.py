@@ -41,7 +41,7 @@ class Thermal:
     @staticmethod
     def plot_model():
         plot = Plot()
-        axs = plot.set_plot_area('Temperature v Time', aspect='equal')
+        axs = plot.set_plot_area('Model elements', aspect='equal')
         ax = axs[0, 0]
         ax.set_xlim([-1, 1.])
         ax.set_ylim([-1, 1.])
