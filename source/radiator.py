@@ -9,21 +9,19 @@ class Radiator:
     data = None
     index = 0
 
-    def __init__(self, name, emissivity, area, cap_names, color):
-        self.name = name
-        self.emissivity = emissivity
-        self.area = area
-        self.cap_names = cap_names
-        self.from_to_name = cap_names[0] + '->' + cap_names[1]
-        self.color = color
-        self.capacitors = []                    # Massive heat capacitors connected by this radiator
+    def __init__(self, params, caps):
+        self.name, pemissivity, parea, self.color = params
+        self.emissivity = float(pemissivity)
+        self.area = float(parea)
+        self.from_to_name = caps[0].name + '->' + caps[1].name
+        self.capacitors = caps                    # Massive heat capacitors connected by this conductor
         self.power_v_time = []
         self.index = Radiator.index
         Radiator.index += 1
         return
 
     def __str__(self):
-        text = "{:s}\n$\epsilon$={:.2f}\nA={:.3f} m".format(self.name, self.emissivity, self.area)
+        text = "{:s}\n$\epsilon$={:.2f}\nA={:.3f} m^2".format(self.name, self.emissivity, self.area)
         return text
 
     def create_links(self, all_capacitors):

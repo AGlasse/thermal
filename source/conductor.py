@@ -9,13 +9,11 @@ class Conductor:
     data = None
     index = 0
 
-    def __init__(self, name, material, length, xsarea, cap_names):
-        self.name = name
-        self.material = material
-        self.xsarea_length = xsarea / length
-        self.cap_names = cap_names
-        self.from_to_name = cap_names[0] + '->' + cap_names[1]
-        self.capacitors = []                    # Massive heat capacitors connected by this conductor
+    def __init__(self, params, caps):
+        self.name, self.material, pxsarea, plength, self.color = params
+        self.xsarea_length = 1.0e-6 * float(pxsarea) / float(plength)
+        self.from_to_name = caps[0].name + '->' + caps[1].name
+        self.capacitors = caps                    # Massive heat capacitors connected by this conductor
         self.power_v_time = []
         if Conductor.data is None:
             filer = Filer()
@@ -27,7 +25,7 @@ class Conductor:
         return
 
     def __str__(self):
-        text = "{:s}, {:s}\nA/L={:.2f} mm".format(self.name, self.material[0:2], self.xsarea_length * 1.0E3)
+        text = "{:s}, {:s}\nA/L={:.2f} mm^2".format(self.name, self.material[0:2], self.xsarea_length * 1.0E3)
         return text
 
     def get(self):

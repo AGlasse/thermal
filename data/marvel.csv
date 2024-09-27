@@ -1,0 +1,24 @@
+# Element type = capacitor, conductor, radiator
+# type, name, material, length, mass, init_temperature, colour
+cap, getter, Cu(OFHC), .343, 195., limegreen,
+cap, link_joint, Cu(OFHC), .1, 295., lightgrey,
+cap, block, Cu(OFHC), .132, 295., red,
+cap, rs_rear_cover, Al_6061, 0.138, 295., grey,
+cap, rs_front, Al_6061, 0.219, 295., grey,
+cap, world, Cu(OFHC), 10000., 295., lightgrey,
+cap, spider, Invar(Fe-36Ni), 0.694, 295., red,
+coo, pt16_hp, Cu(OFHC), 0.5, 295., orange,
+# conductor: name, material, length/m, xsarea/m2, capacitor_names
+con, get_pt16_bolt, Cu_RRR=100, .0002, 1.E-6, pt16_hp; getter,
+con, flexi_linkx4, Cu_RRR=100, .150, 1.E-4, getter; link_joint,
+con, det_link, Cu_RRR=100, .170, 4.E-5, link_joint; block,
+con, rs_link_2, Cu_RRR=100, .050, 1.E-5, rs_front; rs_rear_cover,
+con, g10_flexures, G10_norm-dir, .030, 1.44E-4, spider; world,
+con, g10_support, G10_norm-dir, .003, 1.6E-5, rs_front; world,
+con, spdr_blck_bolt, Cu_RRR=100, .0002, 1.E-6, spider; block
+# radiator: name,
+rad, ro_1, .1, 0.05, red, world; rs_front,
+rad, ro_2, .1, 0.05, peru, world; rs_rear_cover,
+rad, ri_3, .1, 0.05, cadetblue, rs_front; block,
+rad, ri_4, .1, 0.05, dodgerblue, rs_rear_cover; block,
+rad, window, .1, 0.09, goldenrod, world; block,

@@ -1,5 +1,4 @@
 #!/usr/bin/python
-from conductor import Conductor
 import numpy as np
 from plot import Plot
 from filer import Filer
@@ -7,26 +6,28 @@ from filer import Filer
 
 class Capacitor:
 
-    # temp_v_time, power_v_time = None, None
     kint_v_temp, kint_groups = None, None
-    cool_v_temp, cool_groups = None, None
     index = 0
 
-    def __init__(self, name, material, mass, temperature, color, **kwargs):
-        self.name, self.material, self.mass, self.temperature, self.color = name, material, mass, temperature, color
+    def __init__(self, params, **kwargs):
+        pname, pmaterial, pmass, ptemperature, pcolor = params
+        self.name, self.material, self.color = pname, pmaterial, pcolor
+        self.mass, self.temperature = float(pmass), float(ptemperature)
+
         # Instantaneous heat flow into capacitor due to conduction, radiation, cooling
         self.con_power, self.rad_power = 0., 0.
 
         self.cooler_name = kwargs.get('cooler', None)
         self.new_temperature = self.temperature
-        self.connectors, self.radiators = [], []
-        self.temp_v_time, self.power_v_time = [], []
-        self.position = 0., 0.      # Tuple holding the position of the element in the thermal model diagram
         if Capacitor.kint_v_temp is None:
             filer = Filer()
             Capacitor.kint_v_temp, Capacitor.kint_groups = filer.load_data('capacity.csv')
-            Capacitor.cool_v_temp, Capacitor.cool_groups = filer.load_data('coolers.csv')
+
+        self.connectors, self.radiators = [], []
+        self.temp_v_time, self.power_v_time = [], []
+        self.position = 0., 0.      # Tuple holding the position of the element in the thermal model diagram
         self.active_paths = {'con': None, 'rad': None, 'cool': None}
+        self.is_cooler = False
         self.index = Capacitor.index
         Capacitor.index += 1
         return
@@ -40,23 +41,11 @@ class Capacitor:
         elements.  The new temperature must be applied once they have been calculated for all elements.
         """
         self.temp_v_time.append([time, self.temperature])
-        cool_power = 0.
-        if self.cooler_name is not None:
-            temp = self.temperature
-            cool_temps = Capacitor.cool_v_temp['Temp']
-            cool_powers = Capacitor.cool_v_temp[self.cooler_name]
-            cool_power = np.interp(temp, cool_temps, cool_powers)
-            self.active_paths['cool'] = True
-        tot_power = self.con_power + self.rad_power - cool_power
+        tot_power = self.con_power + self.rad_power
         heat = tot_power * delta_time
         self.temperature = Capacitor.get_new_temperature(self, heat)
-        # self.power_v_time.append([time, self.con_power, self.rad_power, cool_power])
         self.con_power, self.rad_power = 0., 0.
         return tot_power
-
-    # def apply_new_temperature(self):
-    #     self.temperature = self.new_temperature
-    #     return
 
     def attach_connector(self, connector):
         self.connectors.append(connector)
