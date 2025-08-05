@@ -10,8 +10,9 @@ class Conductor:
     index = 0
 
     def __init__(self, params, caps):
-        self.name, self.material, pxsarea, plength, self.color = params
-        self.xsarea_length = 1.0e-6 * float(pxsarea) / float(plength)
+        self.name, self.material, pxsarea, plength, scale_str, self.color = params
+        self.scale_factor = float(scale_str)
+        self.xsarea_length = self.scale_factor * 1.0e-6 * float(pxsarea) / float(plength)
         self.from_to_name = caps[0].name + '->' + caps[1].name
         self.capacitors = caps                    # Massive heat capacitors connected by this conductor
         self.power_v_time = []

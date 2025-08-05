@@ -10,9 +10,10 @@ class Radiator:
     index = 0
 
     def __init__(self, params, caps):
-        self.name, pemissivity, parea, self.color = params
+        self.name, pemissivity, parea, self.color, scale_str = params
+        self.scale_factor = float(scale_str)
         self.emissivity = float(pemissivity)
-        self.area = float(parea)
+        self.area = float(parea) * self.scale_factor
         self.from_to_name = caps[0].name + '->' + caps[1].name
         self.capacitors = caps                    # Massive heat capacitors connected by this conductor
         self.power_v_time = []

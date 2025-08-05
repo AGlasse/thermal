@@ -15,8 +15,6 @@ class Plot:
     @staticmethod
     def set_plot_area(title, **kwargs):
 
-        import matplotlib.pyplot as plt
-
         figsize = kwargs.get('figsize', [12, 9])
         xlim = kwargs.get('xlim', None)            # Common limits for all plots
         ylim = kwargs.get('ylim', None)            # Common limits for all plots
@@ -83,7 +81,6 @@ class Plot:
 
         return xt, yt
 
-#    @staticmethod
     def plot_points(self, ax, x, y, **kwargs):
         """ Plot an array of points in the open plot region. """
 
