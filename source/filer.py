@@ -56,22 +56,23 @@ class Filer:
                 size_f = np.array([tokens[5], tokens[6], tokens[7]], dtype=float) / scale_length
                 size = size_f.astype(int)
                 n_cells = np.prod(size)
-                colour = tokens[8].strip()
+                geom_f = float(tokens[8])
+                colour = tokens[9].strip()
                 corn2 = corn1 + size
                 elm = {'category': cat, 'name': name, 'n_cells': n_cells,
-                       'corner1': corn1, 'corner2': corn2, 'colour': colour}
+                       'corner1': corn1, 'corner2': corn2, 'geom': geom_f, 'colour': colour}
 
                 if cat in ['sen', 'cls']:
                     elements[name] = elm
                     if cat in 'cls':
                         closed_loop['cls'] = elm
                     continue
-                init_temp = float(tokens[10])
+                init_temp = float(tokens[11])
                 elm['init_temp'] = init_temp
 
-                material = tokens[9].strip()
+                material = tokens[10].strip()
                 elm['material'] = material
-                mass = float(tokens[11])
+                mass = float(tokens[12])
                 elm['mass'] = mass
 
                 el_volume = size[0] * size[1] * size[2] * scale_length**3
@@ -84,13 +85,13 @@ class Filer:
                     elements[name] = elm
                     continue
                 if cat in ['htr', 'clh', 'bth']:
-                    val = float(tokens[12])
+                    val = float(tokens[13])
                     elm['power'] = val
                     if cat in ['htr', 'bth']:
-                        elm['time_on'] = float(tokens[13])
-                        elm['period'] = float(tokens[14])
+                        elm['time_on'] = float(tokens[14])
+                        elm['period'] = float(tokens[15])
                         if cat in 'bth':
-                            elm['delta_temp'] = float(tokens[15])
+                            elm['delta_temp'] = float(tokens[16])
                     else:
                         closed_loop['clh'] = elm
                 elements[name] = elm

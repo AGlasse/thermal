@@ -29,10 +29,10 @@ class ThermalGrid:
         return
 
     def run(self):
-        model_name = 'bg_noload_a'
+        model_name = 'bg_load_5j_1000sec'
         model_path = './data/' + model_name
 
-        init_name = ''      # bg_noload_a'
+        init_name = 'bg_noload_stable'       # ''
         if init_name == '':         # No initialisation model.  Load model from disk
             model = Filer.load_grid_model(model_path, ThermalGrid.thermal_props)
         else:                       # Initialise from existing model output.
@@ -40,9 +40,17 @@ class ThermalGrid:
             model = Filer.read_pickle(init_path)
             model['tmp_grid_init'] = model['tmp_grid_final']        # Start new model with old temperature grid.
             model['tmp_grid_final'] = None
+            model['parameters']['duration'] = 18000.0
+            # Explicitly turn on periodic heat load at mount.
+            heat_load = model['elements']['mnt_rad']
+            heat_load['power'] = 0.5
+            heat_load['period'] = 1000.0
+            # Patch up sen_m1 plot colour
+            sen_m1 = model['elements']['sen_m1']
+            sen_m1['colour'] = 'grey'
         delta_time = ThermalGrid.get_frame_time(model)
         Plot.plot_grid(model)
-        just_plot = False
+        just_plot = True
         if not just_plot:
             parameters, elements,tgrid = model['parameters'], model['elements'], model['tmp_grid_init']
             sim_duration, t_sampling = parameters['duration'], parameters['t_sampling']
@@ -104,6 +112,7 @@ class ThermalGrid:
                 element = elements[name]
                 cat = element['category']
                 x1, y1, z1 = element['corner1']
+                geom = element['geom']
                 if cat in ['sen', 'cls']:
                     output[name].append(u[x1, y1, z1])
                     continue
@@ -116,7 +125,7 @@ class ThermalGrid:
 
                 material = element['material']
                 density, cp, cond = ThermalGrid.thermal_props[material]
-                k_therm = cond / (cp * density)  # Units m2 / sec
+                k_therm = geom * cond / (cp * density)  # Units m2 / sec
                 n_cells = element['n_cells']
 
                 du_dt_htr = 0.
@@ -139,8 +148,15 @@ class ThermalGrid:
                             u_terms[3] = u[x, y - 1, z]
                             u_terms[4] = u[x, y, z + 1]
                             u_terms[5] = u[x, y, z - 1]
-                            n_pts = np.count_nonzero(~np.isnan(u_terms))
-                            dku_in = k_therm * np.nansum(u_terms)
+                            # g_list = [gx, gx, gy, gy, gz, gz]
+                            # g_list = [1., 1., 1., 1., 1., 1.]
+                            du_in = 0.
+                            bool = ~np.isnan(u_terms)
+                            idx_vals = np.argwhere(bool).flatten()
+                            for i in idx_vals:
+                                du_in += u_terms[i]
+                            n_pts = np.count_nonzero(bool)
+                            dku_in = k_therm * du_in
                             dku_out = n_pts * k_therm * u[x, y, z]
                             du_dt_con = (dku_in - dku_out) / ds2
                             du_dt = du_dt_con + du_dt_htr
@@ -158,9 +174,9 @@ class ThermalGrid:
 
             u = np.array(u_next)
             t_sim += t_frame
-        model = CL.finalise_model(model)
         model['tmp_grid_final'] = np.array(u)
         model['time_series'] = output
+        model = CL.finalise(model)
         t_run = time.time() - t_start
         print()
         ThermalGrid._print_time(t_run, "Measured run time =")
